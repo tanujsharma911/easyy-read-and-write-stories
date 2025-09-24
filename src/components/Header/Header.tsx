@@ -10,16 +10,41 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+
+import type { RootState } from "../../app/store";
 
 export default function Header() {
   const navigate = useNavigate();
+  const userLoggedIn = useSelector((state: RootState) => state.auth.status);
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    console.log(userLoggedIn);
+  }, [userLoggedIn]);
+
   const links = [
-    { name: "Home", to: "/" },
-    { name: "Create Post", to: "/create" },
-    { name: "Communities", to: "/communities" },
+    {
+      name: "Home",
+      to: "/",
+      active: true,
+    },
+    {
+      name: "Create Post",
+      to: "/create",
+      active: userLoggedIn,
+    },
+    {
+      name: "Communities",
+      to: "/communities",
+      active: userLoggedIn,
+    },
+    {
+      name: "Account",
+      to: "/account",
+      active: userLoggedIn,
+    },
   ];
 
   return (
@@ -33,23 +58,27 @@ export default function Header() {
       {/* Desktop Navigation */}
       <NavigationMenu viewport={false} className="hidden md:flex lg:flex">
         <NavigationMenuList>
-          {links.map((link) => (
-            <NavigationMenuItem key={link.name}>
-              <NavigationMenuLink
-                asChild
-                className={navigationMenuTriggerStyle()}
-              >
-                <Link to={link.to}>{link.name}</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          ))}
+          {links.map((link) =>
+            !link.active ? null : (
+              <NavigationMenuItem key={link.name}>
+                <NavigationMenuLink
+                  asChild
+                  className={navigationMenuTriggerStyle()}
+                >
+                  <Link to={link.to}>{link.name}</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )
+          )}
         </NavigationMenuList>
 
-        <NavigationMenuList className="ml-4">
-          <div>
-            <Button onClick={() => navigate("/login")}>Login</Button>
-          </div>
-        </NavigationMenuList>
+        {!userLoggedIn && (
+          <NavigationMenuList className="ml-4">
+            <div>
+              <Button onClick={() => navigate("/login")}>Login</Button>
+            </div>
+          </NavigationMenuList>
+        )}
       </NavigationMenu>
 
       {/* Mobile Navigation */}

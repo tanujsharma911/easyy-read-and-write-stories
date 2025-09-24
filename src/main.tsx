@@ -8,10 +8,14 @@ import "./index.css";
 // Local imports
 import { store } from "./app/store.ts";
 import App from "./App.tsx";
+import AuthLayout from "./components/AuthLayout.tsx";
 
 // Pages import
 import Home from "./pages/Home.tsx";
 import LoginPage from "./pages/Login.tsx";
+import CreatePost from "./pages/CreatePost.tsx";
+import Communities from "./pages/Communities.tsx";
+import Account from "./pages/Account.tsx";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +32,30 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <LoginPage />,
+      },
+      {
+        path: "/account",
+        element: (
+          <AuthLayout authenticationRequired={true}>
+            <Account />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/create",
+        element: (
+          <AuthLayout authenticationRequired={true}>
+            <CreatePost />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/communities",
+        element: (
+          <AuthLayout authenticationRequired={true}>
+            <Communities />
+          </AuthLayout>
+        ),
       },
     ],
   },
