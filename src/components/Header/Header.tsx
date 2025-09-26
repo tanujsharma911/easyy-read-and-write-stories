@@ -49,9 +49,9 @@ export default function Header() {
   ];
 
   return (
-    <div className="w-full flex items-center justify-between py-4 px-10 border-b border-b-slate-200">
+    <div className="w-full flex items-center justify-between py-4 px-18 border-b border-b-slate-200">
       <div className="flex items-center gap-2">
-        <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
+        <h3 className="scroll-m-20 text-2xl font-sans font-semibold tracking-tight">
           Easyy!
         </h3>
       </div>

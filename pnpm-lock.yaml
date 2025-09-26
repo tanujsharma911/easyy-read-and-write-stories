@@ -47,6 +47,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.89.0
         version: 5.89.0(react@19.1.1)
+      '@tinymce/tinymce-react':
+        specifier: ^6.3.0
+        version: 6.3.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       axios:
         specifier: ^1.12.2
         version: 1.12.2
@@ -86,9 +89,6 @@ importers:
       tailwindcss:
         specifier: ^4.1.13
         version: 4.1.13
-      zod:
-        specifier: ^4.1.11
-        version: 4.1.11
     devDependencies:
       '@eslint/js':
         specifier: ^9.35.0
@@ -1090,6 +1090,16 @@ packages:
     resolution: {integrity: sha512-SXbtWSTSRXyBOe80mszPxpEbaN4XPRUp/i0EfQK1uyj3KCk/c8FuPJNIRwzOVe/OU3rzxrYtiNabsAmk1l714A==}
     peerDependencies:
       react: ^18 || ^19
+
+  '@tinymce/tinymce-react@6.3.0':
+    resolution: {integrity: sha512-E++xnn0XzDzpKr40jno2Kj7umfAE6XfINZULEBBeNjTMvbACWzA6CjiR6V8eTDc9yVmdVhIPqVzV4PqD5TZ/4g==}
+    peerDependencies:
+      react: ^19.0.0 || ^18.0.0 || ^17.0.1 || ^16.7.0
+      react-dom: ^19.0.0 || ^18.0.0 || ^17.0.1 || ^16.7.0
+      tinymce: ^8.0.0 || ^7.0.0 || ^6.0.0 || ^5.5.1
+    peerDependenciesMeta:
+      tinymce:
+        optional: true
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -2162,9 +2172,6 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zod@4.1.11:
-    resolution: {integrity: sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg==}
-
 snapshots:
 
   '@babel/code-frame@7.27.1':
@@ -3001,6 +3008,12 @@ snapshots:
     dependencies:
       '@tanstack/query-core': 5.89.0
       react: 19.1.1
+
+  '@tinymce/tinymce-react@6.3.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+    dependencies:
+      prop-types: 15.8.1
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
 
   '@types/babel__core@7.20.5':
     dependencies:
@@ -4026,5 +4039,3 @@ snapshots:
   yallist@5.0.0: {}
 
   yocto-queue@0.1.0: {}
-
-  zod@4.1.11: {}
