@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router";
 
-import authService from "@/supabase/table/auth";
+import authService from "@/supabase/auth";
 
 export function LoginForm({
   className,

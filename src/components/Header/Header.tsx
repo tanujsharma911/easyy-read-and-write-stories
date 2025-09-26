@@ -18,10 +18,11 @@ import type { RootState } from "../../app/store";
 export default function Header() {
   const navigate = useNavigate();
   const userLoggedIn = useSelector((state: RootState) => state.auth.status);
+  // const userData = useSelector((state: RootState) => state.auth.userData);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    console.log(userLoggedIn);
+    console.log("user loggedin: ", userLoggedIn);
   }, [userLoggedIn]);
 
   const links = [
@@ -94,19 +95,25 @@ export default function Header() {
           {/* Sidebar / Drawer */}
           <SheetContent side="left" className="p-4">
             <nav className="flex flex-col gap-4">
-              {links.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.to}
-                  onClick={() => setOpen(false)}
-                >
-                  {link.name}
-                </Link>
-              ))}
+              {links.map((link) =>
+                !link.active ? null : (
+                  <Link
+                    key={link.name}
+                    to={link.to}
+                    onClick={() => setOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
+                )
+              )}
             </nav>
-            <div>
-              <Button onClick={() => navigate("/login")}>Login</Button>
-            </div>
+            {!userLoggedIn && (
+              <NavigationMenuList className="ml-4">
+                <div>
+                  <Button onClick={() => navigate("/login")}>Login</Button>
+                </div>
+              </NavigationMenuList>
+            )}
           </SheetContent>
         </Sheet>
       </div>

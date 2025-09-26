@@ -1,42 +1,42 @@
 import { Outlet } from "react-router";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { Toaster } from "sonner";
 
 import Header from "./components/Header/Header";
-import supabase from "./supabase/supabase-client";
-import { login } from "./store/authSlice";
+import { login, logout } from "./store/authSlice";
+import auth from "./supabase/auth";
 
 function App() {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) return;
-      // console.log("user", session.user);
-      dispatch(login(session.user));
-      setLoading(false);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) return;
-      // console.log("user", session.user);
-      dispatch(login(session.user));
-      setLoading(false);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
+    auth
+      .getSession()
+      .then((userData) => {
+        if (userData) {
+          const user = userData.user;
+          dispatch(login(user));
+        } else {
+          dispatch(logout());
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [dispatch]);
 
   return loading ? (
     <div className="flex items-center justify-center h-screen">Loading...</div>
   ) : (
     <div>
       <Header />
-      <div>
+      <div className="mx-auto px-5 md:px-20 lg:max-w-4xl w-full mt-10">
         <Outlet />
       </div>
+
+      <Toaster richColors />
     </div>
   );
 }

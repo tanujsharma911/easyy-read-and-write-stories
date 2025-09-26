@@ -1,9 +1,11 @@
-import React from 'react'
+import Account from "@/components/Account";
 
-function Account() {
+function AccountPage() {
   return (
-    <div>Account</div>
-  )
+    <div>
+      <Account />
+    </div>
+  );
 }
 
-export default Account
+export default AccountPage;

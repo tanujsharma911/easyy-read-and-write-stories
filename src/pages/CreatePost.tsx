@@ -1,9 +1,11 @@
-import React from 'react'
+import CreatePostComp from "../components/CreatePost";
 
 function CreatePost() {
   return (
-    <div>CreatePost</div>
-  )
+    <div>
+      <CreatePostComp />
+    </div>
+  );
 }
 
-export default CreatePost
+export default CreatePost;
