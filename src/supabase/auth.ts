@@ -1,5 +1,4 @@
 import supabase from "./supabase-client";
-
 import { toast } from "sonner"
 
 export class AuthService {

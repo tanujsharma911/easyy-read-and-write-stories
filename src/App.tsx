@@ -31,8 +31,11 @@ function App() {
     <div className="flex items-center justify-center h-screen">Loading...</div>
   ) : (
     <div>
-      <Header />
-      <div className="mx-auto px-5 md:px-20 lg:max-w-4xl w-full mt-10">
+      <div className="sticky top-0 w-full z-50  bg-white/70 backdrop-blur-lg">
+        <Header />
+      </div>
+
+      <div className="mx-auto mb-20 px-5 md:px-20 lg:max-w-4xl w-full mt-10">
         <Outlet />
       </div>
 
