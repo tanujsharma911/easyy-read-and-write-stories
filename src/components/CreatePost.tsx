@@ -11,18 +11,23 @@ import {
 } from "@/components/ui/select";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import ImageCropComp from "./ImageCrop";
 
+// Local Imports
 import postServices from "@/supabase/post";
 import type { RootState } from "../app/store";
 import RTE from "./RTE/RTE";
+import { useState } from "react";
 
 type Inputs = {
   title: string;
   content: string;
   visibility: "public" | "private";
-  created_by_id?: string;
-  created_by_name?: string;
-  created_by_avatar?: string;
+  user_id?: string;
+  user_name?: string;
+  user_avatar?: string;
+  image_url?: string;
+  slug: string;
 };
 
 interface UserData {
@@ -48,19 +53,13 @@ interface UserData {
   };
 }
 
+// Component
 const CreatePost = () => {
   const navigate = useNavigate();
-  const userData = useSelector(
-    (state: RootState) => state.auth.userData
-  ) as UserData | null;
+  const userData = useSelector((state: RootState) => state.auth.userData) as UserData | null;
+  const [imageString, setImageString] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    control, // We'll use this for the Controller component
-  } = useForm<Inputs>({
-    // It's good practice to set default values
+  const { register, handleSubmit, formState: { errors }, control } = useForm<Inputs>({
     defaultValues: {
       title: "",
       content: "",
@@ -68,26 +67,48 @@ const CreatePost = () => {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: (data: {
-      title: string;
-      content: string;
-      visibility: "public" | "private";
-      created_by_id?: string;
-      created_by_name?: string;
-      created_by_avatar?: string;
-    }) => postServices.createPost(data),
+  const createPost = useMutation({
+    mutationFn: (data: Inputs) => postServices.createPost(data),
 
-    onSuccess: (data) => {
-      console.log("✅ Post created:", data);
+    onSuccess: () => {
       toast.success("Post created successfully!");
       navigate("/");
     },
 
-    onError: (error: Error) => {
-      console.error("❌ Failed to create post:", error.message);
+    onError: () => {
+      toast.error("Failed to create post. Please try again.");
     },
   });
+
+  const uploadImage = useMutation({
+    mutationFn: async ({image, filePath, data}: {image: File, filePath: string, data: Inputs}) => {
+      const publicUrl = await postServices.uploadImage(image, filePath);
+      return { ...data, image_url: publicUrl };
+    },
+
+    onSuccess: (data) => {
+      toast.success("Image uploaded successfully!");
+      createPost.mutate(data);
+    },
+
+    onError: () => {
+      toast.error("Failed to upload image. Please try again.");
+    },
+  });
+
+  const base64ToFile = (base64: string, filename: string): File => {
+    const arr = base64.split(",");
+    const mime = arr[0].match(/:(.*?);/)![1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, { type: mime });
+  };
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     // Ensure content is not empty
@@ -116,13 +137,25 @@ const CreatePost = () => {
       toast.error("User not logged in");
       return;
     }
+    if (!imageString) {
+      toast.error("Please add a cover image");
+      return;
+    }
 
-    data.created_by_id = userData.id;
-    data.created_by_name = userData.user_metadata.full_name;
-    data.created_by_avatar = userData.user_metadata.avatar_url;
+    // Add user info to the post data
+    if (!userData) return;
+    data.user_id = userData.id;
+    data.user_name = userData.user_metadata.full_name;
+    data.user_avatar = userData.user_metadata.avatar_url;
 
-    mutation.mutate(data);
-    console.log(data);
+    // convert base64(string) image into file
+    const image = base64ToFile(imageString, "cover.jpg");
+
+    data.slug = ""
+
+    // Upload image if exists
+    const filePath = `${data.title}-${data.user_id}-${data.user_name}-${Date.now()}`;
+    uploadImage.mutate({image, filePath, data});
   };
 
   return (
@@ -131,11 +164,15 @@ const CreatePost = () => {
         Create Article
       </h1>
       <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
-        {/* Title Input (Correct as is) */}
+        <div className="mb-10">
+          <p className="mb-2 text-xl">Cover Image</p>
+          <ImageCropComp image={imageString} setImage={setImageString} />
+        </div>
+
         <div>
           <input
             type="text"
-            placeholder="Title goes here..."
+            placeholder="Give Title to your article"
             maxLength={50}
             {...register("title", {
               required: "Title is required",
@@ -154,6 +191,7 @@ const CreatePost = () => {
         </div>
 
         <div className="mb-5">
+          <p className="mb-2">Visibility</p>
           <Controller
             name="visibility"
             control={control}
@@ -178,8 +216,8 @@ const CreatePost = () => {
           )}
         </div>
 
-        <Button type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? "Creating..." : "Create Post"}
+        <Button type="submit" disabled={createPost.isPending}>
+          {createPost.isPending ? "Creating..." : "Create Post"}
         </Button>
       </form>
     </div>

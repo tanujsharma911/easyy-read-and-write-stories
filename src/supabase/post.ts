@@ -1,30 +1,52 @@
 import supabase from "./supabase-client";
 
-export class PostServices {
-    async createPost(data: {
-        title: string;
-        content: string;
-        visibility: "public" | "private";
-        created_by_id?: string;
-        created_by_name?: string;
-        created_by_avatar?: string;
-    }) {
-        const response = await supabase.from("articles").insert([
-            {
-                title: data.title,
-                content: data.content,
-                visibility: data.visibility,
-                created_by_id: data.created_by_id,
-                created_by_name: data.created_by_name,
-                created_by_avatar: data.created_by_avatar,
-            },
-        ]);
+type Post = {
+    title: string;
+    content: string;
+    visibility: "public" | "private";
+    user_id?: string;
+    user_name?: string;
+    user_avatar?: string;
+    image_url?: string;
+    slug: string;
+};
 
-        if (response.error) {
-            throw new Error(response.error.message);
+export class PostServices {
+    async createPost(data: Post) {
+        try {
+            const response = await supabase.from("articles").insert([data]);
+            if (response.error) {
+                throw new Error(response.error.message);
+            }
+            return response.data;
+        } catch (error) {
+            console.error("Error creating post:", error);
+            throw new Error("Failed to create post");
         }
 
-        return response.data;
+    }
+
+    async uploadImage(image: File, filePath: string) {
+
+        try {
+            const { error } = await supabase.storage
+                .from("post-images")
+                .upload(filePath, image);
+    
+            if (error) {
+                throw new Error(error.message);
+            }
+    
+            const { data: publicURL } = supabase.storage
+                .from("post-images")
+                    .getPublicUrl(filePath);
+    
+            return publicURL.publicUrl;
+            
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            throw new Error("Failed to upload image");
+        }
     }
 };
 

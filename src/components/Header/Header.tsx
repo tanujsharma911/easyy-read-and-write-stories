@@ -61,10 +61,10 @@ export default function Header() {
         <NavigationMenuList>
           {links.map((link) =>
             !link.active ? null : (
-              <NavigationMenuItem key={link.name}>
+              <NavigationMenuItem key={link.name} className="bg-transparent">
                 <NavigationMenuLink
                   asChild
-                  className={navigationMenuTriggerStyle()}
+                  className={navigationMenuTriggerStyle() + " bg-transparent"}
                 >
                   <Link to={link.to}>{link.name}</Link>
                 </NavigationMenuLink>

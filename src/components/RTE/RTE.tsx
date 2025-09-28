@@ -1,6 +1,9 @@
 import { Editor } from "@tinymce/tinymce-react";
 import { Controller } from "react-hook-form";
 
+import Skeleton from "../ui/Skeleton";
+import { useState } from "react";
+
 function RTE({
   control,
   defaultValue = "",
@@ -10,8 +13,15 @@ function RTE({
   defaultValue?: string;
 }) {
   const apiKey = import.meta.env.VITE_TINYMCE_API_KEY;
+  const [loading, setLoading] = useState(true);
+
+  const handleInit = () => {
+    setLoading(false);
+  };
+
   return (
     <div>
+      {loading && <Skeleton className="h-80" />}
       <Controller
         control={control}
         name="content"
@@ -51,6 +61,7 @@ function RTE({
                 "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
             }}
             onEditorChange={onChange}
+            onInit={handleInit}
           />
         )}
       />
