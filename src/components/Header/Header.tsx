@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 
 import type { RootState } from "../../app/store";
@@ -20,10 +20,6 @@ export default function Header() {
   const userLoggedIn = useSelector((state: RootState) => state.auth.status);
   // const userData = useSelector((state: RootState) => state.auth.userData);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    console.log("user loggedin: ", userLoggedIn);
-  }, [userLoggedIn]);
 
   const links = [
     {

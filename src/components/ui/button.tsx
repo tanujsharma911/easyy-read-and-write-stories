@@ -49,7 +49,7 @@ function Button({
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size, className })) + `${props.disabled ? ' bg-gray-600 dark:bg-gray-700 cursor-not-allowed' : ''}`}
       {...props}
     />
   )

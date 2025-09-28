@@ -15,6 +15,10 @@
   border: 1px solid #ccc;
 }
 
+*{
+  box-shadow: none !important;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.3588 0.1354 278.6973);

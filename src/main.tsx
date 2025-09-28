@@ -16,6 +16,7 @@ import LoginPage from "./pages/Login.tsx";
 import CreatePost from "./pages/CreatePost.tsx";
 import Communities from "./pages/Communities.tsx";
 import Account from "./pages/Account.tsx";
+import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
           </AuthLayout>
         ),
       },
+      {
+        path: "*",
+        element: <NotFound />,
+      }
     ],
   },
 ]);

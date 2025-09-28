@@ -77,7 +77,7 @@ const ImageCropComp = ({ image, setImage }: ImageCropCompProps) => {
         file={selectedFile}
         maxImageSize={1024 * 1024 * 5} // 5MB
         // onChange={console.log}
-        onComplete={console.log}
+        // onComplete={console.log}
         onCrop={setImage}
       >
         <ImageCropContent className="max-w-md" />

@@ -18,6 +18,7 @@ import postServices from "@/supabase/post";
 import type { RootState } from "../app/store";
 import RTE from "./RTE/RTE";
 import { useState } from "react";
+import { Loader2Icon } from "lucide-react";
 
 type Inputs = {
   title: string;
@@ -68,31 +69,21 @@ const CreatePost = () => {
   });
 
   const createPost = useMutation({
-    mutationFn: (data: Inputs) => postServices.createPost(data),
+    mutationFn: async ({image, filePath, data} : {image: File, filePath: string, data: Inputs}) => {
+      const publicUrl = await postServices.uploadImage(image, filePath);
+      data.image_url = publicUrl;
+      const response = await postServices.createPost(data);
+      console.log("Post created:", response);
+      return data;
+    },
 
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Post created successfully!");
-      navigate("/");
+      navigate(`/${data.slug}`);
     },
 
     onError: () => {
       toast.error("Failed to create post. Please try again.");
-    },
-  });
-
-  const uploadImage = useMutation({
-    mutationFn: async ({image, filePath, data}: {image: File, filePath: string, data: Inputs}) => {
-      const publicUrl = await postServices.uploadImage(image, filePath);
-      return { ...data, image_url: publicUrl };
-    },
-
-    onSuccess: (data) => {
-      toast.success("Image uploaded successfully!");
-      createPost.mutate(data);
-    },
-
-    onError: () => {
-      toast.error("Failed to upload image. Please try again.");
     },
   });
 
@@ -108,6 +99,16 @@ const CreatePost = () => {
     }
 
     return new File([u8arr], filename, { type: mime });
+  };
+  const slugification = (title: string) => {
+    return title
+      .toLowerCase()                       // lowercase everything
+      .normalize("NFD")                     // split accents from letters
+      .replace(/[\u0300-\u036f]/g, "")      // remove accents
+      .replace(/[^a-z0-9\s-]/g, "")         // remove special chars & emojis
+      .trim()                               // trim spaces from start & end
+      .replace(/\s+/g, "-")                 // replace spaces with -
+      .replace(/-+/g, "-");                 // collapse multiple - into one
   };
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
@@ -151,11 +152,13 @@ const CreatePost = () => {
     // convert base64(string) image into file
     const image = base64ToFile(imageString, "cover.jpg");
 
-    data.slug = ""
+    // Generate slug from title
+    data.slug = slugification(data.title);
+    data.slug += `-${(new Date()).toLocaleDateString().replaceAll('/', '-')}`;
 
     // Upload image if exists
     const filePath = `${data.title}-${data.user_id}-${data.user_name}-${Date.now()}`;
-    uploadImage.mutate({image, filePath, data});
+    createPost.mutate({image, filePath, data});
   };
 
   return (
@@ -217,6 +220,7 @@ const CreatePost = () => {
         </div>
 
         <Button type="submit" disabled={createPost.isPending}>
+          {createPost.isPending && <Loader2Icon className="animate-spin" />}
           {createPost.isPending ? "Creating..." : "Create Post"}
         </Button>
       </form>
