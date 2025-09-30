@@ -23,13 +23,13 @@ export default function Header() {
 
   const links = [
     {
-      name: "Home",
-      to: "/",
+      name: "Articles",
+      to: "/articles",
       active: true,
     },
     {
       name: "Create Post",
-      to: "/create",
+      to: "/create-post",
       active: userLoggedIn,
     },
     {
@@ -45,74 +45,77 @@ export default function Header() {
   ];
 
   return (
-    <div className="w-full flex bg-transparent items-center justify-between py-4 px-18 border-b border-b-slate-200">
-      <div className="flex items-center gap-2">
-        <h3 className="scroll-m-20 text-2xl font-sans font-semibold tracking-tight">
-          Easyy!
-        </h3>
-      </div>
+    <div>
+      <nav className="w-full flex bg-transparent items-center justify-between py-4 px-5 sm:px-18 border-b border-b-slate-200">
+        <div className="flex items-center gap-2">
+          <h3 className="scroll-m-20 text-2xl font-sans font-semibold tracking-tight">
+            Easyy!
+          </h3>
+        </div>
 
-      {/* Desktop Navigation */}
-      <NavigationMenu viewport={false} className="hidden md:flex lg:flex">
-        <NavigationMenuList>
-          {links.map((link) =>
-            !link.active ? null : (
-              <NavigationMenuItem key={link.name} className="bg-transparent">
-                <NavigationMenuLink
-                  asChild
-                  className={navigationMenuTriggerStyle() + " bg-transparent"}
-                >
-                  <Link to={link.to}>{link.name}</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            )
-          )}
-        </NavigationMenuList>
-
-        {!userLoggedIn && (
-          <NavigationMenuList className="ml-4">
-            <div>
-              <Button onClick={() => navigate("/login")}>Login</Button>
-            </div>
-          </NavigationMenuList>
-        )}
-      </NavigationMenu>
-
-      {/* Mobile Navigation */}
-      <div className="md:hidden lg:hidden">
-        {/* Hamburger Button */}
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-
-          {/* Sidebar / Drawer */}
-          <SheetContent side="left" className="p-4">
-            <nav className="flex flex-col gap-4">
-              {links.map((link) =>
-                !link.active ? null : (
-                  <Link
-                    key={link.name}
-                    to={link.to}
-                    onClick={() => setOpen(false)}
+        {/* Desktop Navigation */}
+        <NavigationMenu viewport={false} className="hidden md:flex lg:flex">
+          <NavigationMenuList>
+            {links.map((link) =>
+              !link.active ? null : (
+                <NavigationMenuItem key={link.name} className="bg-transparent">
+                  <NavigationMenuLink
+                    asChild
+                    className={navigationMenuTriggerStyle() + " bg-transparent"}
                   >
-                    {link.name}
-                  </Link>
-                )
-              )}
-            </nav>
-            {!userLoggedIn && (
-              <NavigationMenuList className="ml-4">
-                <div>
-                  <Button onClick={() => navigate("/login")}>Login</Button>
-                </div>
-              </NavigationMenuList>
+                    <Link to={link.to}>{link.name}</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )
             )}
-          </SheetContent>
-        </Sheet>
-      </div>
+          </NavigationMenuList>
+
+          {!userLoggedIn && (
+            <NavigationMenuList className="ml-4">
+              <div>
+                <Button onClick={() => navigate("/login")}>Login</Button>
+              </div>
+            </NavigationMenuList>
+          )}
+        </NavigationMenu>
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden lg:hidden">
+          {/* Hamburger Button */}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+
+            {/* Sidebar / Drawer */}
+            <SheetContent side="left" className="p-4">
+              <nav className="flex flex-col gap-4">
+                {links.map((link) =>
+                  !link.active ? null : (
+                    <Link
+                      key={link.name}
+                      to={link.to}
+                      onClick={() => setOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  )
+                )}
+              </nav>
+              {!userLoggedIn && (
+                <NavigationMenuList className="ml-4">
+                  <div>
+                    <Button onClick={() => navigate("/login")}>Login</Button>
+                  </div>
+                </NavigationMenuList>
+              )}
+            </SheetContent>
+          </Sheet>
+        </div>
+      </nav>
+      
     </div>
   );
 }

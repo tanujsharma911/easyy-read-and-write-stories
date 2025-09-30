@@ -48,6 +48,43 @@ export class PostServices {
             throw new Error("Failed to upload image");
         }
     }
+
+    async getAllPosts() {
+        try {
+            const { data, error } = await supabase
+                .from("articles")
+                .select("*")
+                .order("created_at", { ascending: false });
+    
+            if (error) {
+                throw new Error(error.message);
+            }
+    
+            return data;
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+            throw new Error("Failed to fetch posts");
+        }
+    }
+
+    async getPostBySlug(slug: string) {
+        try {
+            const { data, error } = await supabase
+                .from("articles")
+                .select("*")
+                .eq("slug", slug)
+                .single();
+    
+            if (error) {
+                throw new Error(error.message);
+            }
+    
+            return data;
+        } catch (error) {
+            console.error("Error fetching post:", error);
+            throw new Error("Failed to fetch post");
+        }
+    }
 };
 
 const postServices = new PostServices();

@@ -8,11 +8,13 @@ import type { RootState } from "@/app/store";
 type ProtectedProps = {
   children: ReactNode;
   authenticationRequired?: boolean;
+  notAuthenticationRequired?: boolean;
 };
 
-export default function Protected({
+export default function Protected({ 
   children,
   authenticationRequired = true,
+  notAuthenticationRequired = false,
 }: ProtectedProps) {
   const navigate = useNavigate();
   const [loader, setLoader] = useState(true);
@@ -26,9 +28,14 @@ export default function Protected({
       setLoader(false);
       return;
     }
+    if( notAuthenticationRequired === true && authStatus === true) {
+      navigate("/");
+      setLoader(false);
+      return;
+    }
 
     setLoader(false);
-  }, [authStatus, navigate, authenticationRequired]);
+  }, [authStatus, notAuthenticationRequired, navigate, authenticationRequired]);
 
   return loader ? (
     <h1 className="w-full text-center">Loading...</h1>

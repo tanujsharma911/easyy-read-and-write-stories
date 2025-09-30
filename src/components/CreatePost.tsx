@@ -70,16 +70,19 @@ const CreatePost = () => {
 
   const createPost = useMutation({
     mutationFn: async ({image, filePath, data} : {image: File, filePath: string, data: Inputs}) => {
+
+      // Upload image and set public URL
       const publicUrl = await postServices.uploadImage(image, filePath);
       data.image_url = publicUrl;
-      const response = await postServices.createPost(data);
-      console.log("Post created:", response);
+
+      // Create post
+      await postServices.createPost(data);
       return data;
     },
 
     onSuccess: (data) => {
       toast.success("Post created successfully!");
-      navigate(`/${data.slug}`);
+      navigate(`/articles/${data.slug}`);
     },
 
     onError: () => {
