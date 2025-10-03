@@ -85,6 +85,24 @@ export class PostServices {
             throw new Error("Failed to fetch post");
         }
     }
+
+    async deletePost(postId: string) {
+        try {
+            const { error } = await supabase
+                .from("articles")
+                .delete()
+                .eq("id", postId);
+    
+            if (error) {
+                throw new Error(error.message);
+            }
+    
+            return true;
+        } catch (error) {
+            console.error("Error deleting post:", error);
+            throw new Error("Failed to delete post");
+        }
+    }
 };
 
 const postServices = new PostServices();

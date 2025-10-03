@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Loader2Icon } from "lucide-react";
 import type { RootState } from "../app/store";
 import { useSelector } from "react-redux";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import voteService from "@/supabase/vote";
 import { useState } from "react";
@@ -32,35 +32,8 @@ interface UserData {
   };
 }
 
-const handleVote = async (
-  voteValue: number,
-  userId: string,
-  postId: string
-) => {
-  if (!userId) {
-    toast("You need to be logged in to vote");
-    throw new Error("User not logged in");
-  }
-
-  const { exists, voteData } = await voteService.voteExists(postId, userId);
-
-  if (exists) {
-    if (voteData.vote === voteValue) {
-      // If the existing vote is the same as the new vote, remove the vote
-      voteService.removeVote(voteData.id);
-    } else {
-      // If the existing vote is different, update the vote by removing the old one and adding the new one
-      await voteService.removeVote(voteData.id);
-      await voteService.vote(postId, userId, voteValue);
-    }
-  } else {
-    voteService.vote(postId, userId, voteValue);
-  }
-
-  return true;
-};
-
 const Vote = ({ postId }: { postId: string | undefined }) => {
+  const queryClient = useQueryClient();
   const isUserLoggedin = useSelector<RootState, boolean | null>(
     (state) => state.auth.status
   );
@@ -72,7 +45,8 @@ const Vote = ({ postId }: { postId: string | undefined }) => {
   const [downvote, setDownvote] = useState(0);
   const [userVote, setUserVote] = useState(0); // 1 for upvote, -1 for downvote, 0 for no vote
 
-  const { refetch } = useQuery({
+  // Fetching all votes & user vote and set it
+  useQuery({
     queryKey: ["votes", postId],
     queryFn: async () => {
       if (!postId) {
@@ -80,14 +54,12 @@ const Vote = ({ postId }: { postId: string | undefined }) => {
       }
       const votes = await voteService.getVotes(postId);
 
-      setUpvote(votes ? votes.filter((vote) => vote.vote === 1).length : 0);
-      setDownvote(votes ? votes.filter((vote) => vote.vote === -1).length : 0);
+      setUpvote(votes.filter((vote) => vote.vote === 1).length);
+      setDownvote(votes.filter((vote) => vote.vote === -1).length);
 
-      if (userData && votes) {
+      if (votes && userData) {
         const existingVote = votes.find((vote) => vote.user_id === userData.id);
         setUserVote(existingVote.vote);
-      } else {
-        setUserVote(0);
       }
 
       return votes;
@@ -96,7 +68,40 @@ const Vote = ({ postId }: { postId: string | undefined }) => {
     enabled: !!postId, // Only run the query if postId is defined
   });
 
-  const vote = useMutation({
+  // Sending user vote to supabase
+  const handleVote = async (
+    voteValue: number,
+    userId: string,
+    postId: string
+  ) => {
+    if (!userId) {
+      toast("You need to be logged in to vote");
+      throw new Error("User not logged in");
+    }
+
+    const { exists, voteData } = await voteService.voteExists(postId, userId);
+
+    if (exists) {
+      if (voteData.vote === voteValue) {
+        // If the existing vote is the same as the new vote, remove the vote
+        setUserVote(0);
+        await voteService.removeVote(voteData.id);
+      } else {
+        // If the existing vote is different, update the vote by removing the old one and adding the new one
+        setUserVote(voteValue);
+        await voteService.removeVote(voteData.id);
+        await voteService.vote(postId, userId, voteValue);
+      }
+    } else {
+      setUserVote(voteValue);
+      await voteService.vote(postId, userId, voteValue);
+    }
+
+    return true;
+  };
+
+  const makeVote = useMutation({
+    // Validating user and call handleVote
     mutationFn: async (voteValue: number) => {
       if (!isUserLoggedin) {
         toast("You need to be logged in to vote");
@@ -110,14 +115,37 @@ const Vote = ({ postId }: { postId: string | undefined }) => {
     },
 
     onSuccess: () => {
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ["votes", postId] });
     },
   });
 
+  if (!isUserLoggedin) {
+    return (
+      <div className="flex items-center gap-4">
+        <div>
+          <Button
+            disabled
+            variant="outline"
+            className="rounded-none first:rounded-l-md last:rounded-r-md gap-1 px-3.5 font-semibold hover:bg-green-600/20 hover:text-green-600"
+          >
+            <ArrowBigUp className="h-5! w-5!" />
+          </Button>
+          <Button
+            disabled
+            variant="outline"
+            className="rounded-none first:rounded-l-md font-semibold last:rounded-r-md hover:bg-rose-500/20 hover:text-rose-500"
+          >
+            <ArrowBigDown className="h-5! w-5!" />
+          </Button>
+        </div>
+        <p className="text-muted-foreground">Log in to see votes</p>
+      </div>
+    );
+  }
   return (
     <div className="[&>*+*]:border-l-0">
       <Button
-        onClick={() => vote.mutate(1)}
+        onClick={() => makeVote.mutate(1)}
         variant="outline"
         className="rounded-none first:rounded-l-md last:rounded-r-md gap-1 px-3.5 font-semibold hover:bg-green-600/20 hover:text-green-600"
       >
@@ -126,11 +154,11 @@ const Vote = ({ postId }: { postId: string | undefined }) => {
           className="h-5! w-5!"
         />
 
-        {vote.isPending && <Loader2Icon className="animate-spin" />}
-        {!vote.isPending && upvote}
+        {makeVote.isPending && <Loader2Icon className="animate-spin" />}
+        {!makeVote.isPending && upvote}
       </Button>
       <Button
-        onClick={() => vote.mutate(-1)}
+        onClick={() => makeVote.mutate(-1)}
         variant="outline"
         className="rounded-none first:rounded-l-md font-semibold last:rounded-r-md hover:bg-rose-500/20 hover:text-rose-500"
       >
@@ -139,8 +167,8 @@ const Vote = ({ postId }: { postId: string | undefined }) => {
           className="h-5! w-5!"
         />
 
-        {vote.isPending && <Loader2Icon className="animate-spin" />}
-        {!vote.isPending && downvote}
+        {makeVote.isPending && <Loader2Icon className="animate-spin" />}
+        {!makeVote.isPending && downvote}
       </Button>
     </div>
   );

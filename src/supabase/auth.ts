@@ -4,7 +4,7 @@ import { toast } from "sonner"
 export class AuthService {
     async signInWithGoogle() {
         const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
+            provider: 'google'
         });
           
 

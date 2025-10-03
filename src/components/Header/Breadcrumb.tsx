@@ -35,12 +35,12 @@ export function BreadcrumbNav() {
               <BreadcrumbItem>
                 {isLast ? (
                   <BreadcrumbPage className="text-gray-600 capitalize">
-                    {segment.replace(/-/g, " ")}
+                    {segment.replace(/[-0-9]/g, " ")}
                   </BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
                     <Link to={to} className="text-gray-600 capitalize">
-                      {segment.replace(/-/g, " ")}
+                      {segment.replace(/[-0-9]/g, " ")}
                     </Link>
                   </BreadcrumbLink>
                 )}

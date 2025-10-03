@@ -28,7 +28,7 @@ export default function Header() {
       active: true,
     },
     {
-      name: "Create Post",
+      name: "Write",
       to: "/create-post",
       active: userLoggedIn,
     },

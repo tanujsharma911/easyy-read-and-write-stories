@@ -12,13 +12,13 @@ import {
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import ImageCropComp from "./ImageCrop";
+import { useState } from "react";
+import { Loader2Icon } from "lucide-react";
 
 // Local Imports
 import postServices from "@/supabase/post";
 import type { RootState } from "../app/store";
 import RTE from "./RTE/RTE";
-import { useState } from "react";
-import { Loader2Icon } from "lucide-react";
 
 type Inputs = {
   title: string;

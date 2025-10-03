@@ -28,6 +28,7 @@ const PostCard = (post: Post) => {
               src={post.user_avatar}
               alt={post.user_name}
               width={22}
+              referrerPolicy="no-referrer"
               className="rounded-full"
             />
             <p className="text-[14px] text-gray-500">{post.user_name}</p>
@@ -42,8 +43,8 @@ const PostCard = (post: Post) => {
           </h3>
           <div className="mt-2 flex text-muted-foreground line-clamp-3 text-ellipsis">
             {parse(
-              post.content.substring(0, 70) +
-                (post.content.length > 70 ? "..." : "")
+              post.content.substring(0, 100) +
+                (post.content.length > 100 ? "..." : "")
             )}
           </div>
           <div className="mt-4 flex items-center gap-6 text-muted-foreground text-sm font-medium">
