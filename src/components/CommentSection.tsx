@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { useSelector } from "react-redux";
 import type { RootState } from "../app/store";
 import { ArrowRightIcon } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-
+import { LoaderCircleIcon } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Form,
   FormField,
@@ -15,7 +15,11 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { toast } from "sonner";
+
+import commentServices from "@/supabase/comment";
+import Time from "./ui/Time";
 
 interface UserData {
   app_metadata: {
@@ -54,33 +58,33 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const CommentSection = ({ postId }: { postId: string | undefined }) => {
+  const isUserLoggedin = useSelector<RootState, boolean | null>(
+    (state) => state.auth.status
+  );
   const userData = useSelector<RootState, UserData | null>(
     (state) => state.auth.userData
   );
-
-  const testimonial = {
-    id: 1,
-    name: "John Doe",
-    created_at: "3 Hours ago",
-    company: "TechCorp",
-    testimonial:
-      "This product has completely transformed the way we work. The efficiency and ease of use are unmatched!",
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-  };
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       message: "",
-      user_id: userData?.id || "",
-      post_id: postId || "",
+      user_id: "",
+      post_id: "",
+      user_name: "",
+      user_avatar: "",
+      parent_comment_id: undefined,
     },
   });
 
   const postComment = useMutation({
     mutationFn: (values: FormData) => {
-      // API call to post a comment
-    }
+      return commentServices.createComment(values);
+    },
+    onSuccess: () => {
+      form.reset();
+      toast.success("Comment posted successfully!");
+    },
   });
 
   function onSubmit(values: FormData) {
@@ -93,72 +97,106 @@ const CommentSection = ({ postId }: { postId: string | undefined }) => {
     console.log(values);
   }
 
+  const comments = useQuery({
+    queryKey: ["comments", postId],
+    queryFn: () => {
+      return commentServices.getCommentsByPostId(postId || "");
+    },
+
+    enabled: !!postId,
+    refetchOnWindowFocus: false,
+  });
+
   return (
     <div className="my-10">
       <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-        {postId} Comments
+        Comments
       </h3>
 
       <hr className="mt-4 mb-8" />
 
-      <div className="my-4 flex gap-2">
-        <img
-          src={userData?.user_metadata.avatar_url}
-          alt={userData?.user_metadata.full_name}
-          referrerPolicy="no-referrer"
-          className="h-8 w-8 rounded-full"
-        />
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6 flex gap-2 w-full"
-          >
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormControl>
-                    <Input placeholder="Enter your comment..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      {isUserLoggedin && (
+        <div className="my-4 flex gap-2">
+          <img
+            src={userData?.user_metadata.avatar_url}
+            alt={userData?.user_metadata.full_name}
+            referrerPolicy="no-referrer"
+            className="h-8 w-8 rounded-full"
+          />
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-6 flex gap-2 w-full"
+            >
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormControl>
+                      <Input placeholder="Enter your comment..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Button type="submit">Submit</Button>
-          </form>
-        </Form>
-      </div>
+              <Button type="submit" disabled={postComment.isPending}>
+                {postComment.isPending && (
+                  <LoaderCircleIcon className="animate-spin" />
+                )}
+                {postComment.isPending ? "Posting..." : "Submit"}
+              </Button>
+            </form>
+          </Form>
+        </div>
+      )}
 
       <div>
-        
-        <div className="flex my-10 gap-4">
-          <Avatar className="size-8">
-            <AvatarFallback className="text-base font-medium bg-primary text-primary-foreground">
-              {testimonial.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-4">
-              <div className="flex gap-4">
-                <p className="text-sm font-semibold">{testimonial.name}</p>
-                <p className="text-sm text-gray-500">
-                  {testimonial.created_at}
-                </p>
+        {!comments.data ? (
+          <p className="my-10 text-center text-gray-500">
+            No comments yet. Be the first to comment!
+          </p>
+        ) : (
+          comments.data.map((comment) => (
+            <div key={comment.id} className="flex my-10 gap-4">
+              <Avatar className="size-8">
+                <AvatarImage
+                  src={comment.user_avatar}
+                  alt={comment.user_name}
+                  referrerPolicy="no-referrer"
+                />
+                <AvatarFallback className="text-base font-medium bg-primary text-primary-foreground">
+                  {comment.user_name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-4">
+                  <div className="flex gap-4">
+                    <p className="text-sm font-semibold">{comment.user_name}</p>
+                    <p className="text-sm text-gray-500">
+                      {new Date(comment.created_at || "").toDateString()}
+                    </p>
+
+                    <p className="text-sm text-gray-500">
+                      <Time time={comment.created_at} noIcon />
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-2 text-base">{comment.message}</p>
+
+                {isUserLoggedin && (
+                  <div className="mt-2">
+                    <Button variant="ghost" className="group">
+                      Reply
+                      <ArrowRightIcon className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
-            <p className="mt-2 text-base">{testimonial.testimonial}</p>
-
-            <div className="mt-2">
-              <Button variant="ghost" className="group">
-                Reply
-                <ArrowRightIcon className="transition-transform duration-200 group-hover:translate-x-0.5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-        
+          ))
+        )}
       </div>
     </div>
   );

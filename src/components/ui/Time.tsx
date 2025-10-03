@@ -1,9 +1,9 @@
 import { ClockIcon } from "lucide-react";
 
-const Time = ({ time }: { time: string }) => {
+const Time = ({ time, noIcon }: { time: string; noIcon?: boolean }) => {
   return (
     <>
-      <ClockIcon className="h-4 w-4" />{" "}
+      {!noIcon && <ClockIcon className="h-4 w-4" />}{" "}
       {new Date(time).getHours() > 12 ? (
         <>{new Date(time).getHours() - 12}</>
       ) : (
