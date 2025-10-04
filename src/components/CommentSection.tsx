@@ -5,9 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { useSelector } from "react-redux";
 import type { RootState } from "../app/store";
-import { ArrowRightIcon } from "lucide-react";
 import { LoaderCircleIcon } from "lucide-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Form,
   FormField,
@@ -15,11 +14,10 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 
 import commentServices from "@/supabase/comment";
-import Time from "./ui/Time";
+import CommentTile from "./ui/CommentTile";
 
 interface UserData {
   app_metadata: {
@@ -44,6 +42,17 @@ interface UserData {
   };
 }
 
+interface CommentType {
+  id: string;
+  created_at: string;
+  message: string;
+  user_id: string;
+  post_id: string;
+  parent_comment_id?: string;
+  user_name: string;
+  user_avatar?: string;
+}
+
 const schema = z.object({
   message: z
     .string()
@@ -55,7 +64,7 @@ const schema = z.object({
   user_avatar: z.string().optional(),
 });
 
-type FormData = z.infer<typeof schema>;
+type Comment = z.infer<typeof schema> & { parent_comment_id?: string | number };
 
 const CommentSection = ({ postId }: { postId: string | undefined }) => {
   const isUserLoggedin = useSelector<RootState, boolean | null>(
@@ -64,8 +73,9 @@ const CommentSection = ({ postId }: { postId: string | undefined }) => {
   const userData = useSelector<RootState, UserData | null>(
     (state) => state.auth.userData
   );
+  const queryClient = useQueryClient();
 
-  const form = useForm<FormData>({
+  const createCommentForm = useForm<Comment>({
     resolver: zodResolver(schema),
     defaultValues: {
       message: "",
@@ -78,23 +88,23 @@ const CommentSection = ({ postId }: { postId: string | undefined }) => {
   });
 
   const postComment = useMutation({
-    mutationFn: (values: FormData) => {
+    mutationFn: (values: Comment) => {
       return commentServices.createComment(values);
     },
     onSuccess: () => {
-      form.reset();
+      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+      createCommentForm.reset();
       toast.success("Comment posted successfully!");
     },
   });
 
-  function onSubmit(values: FormData) {
+  function onSubmit(values: Comment) {
     values.post_id = postId || "";
     values.user_id = userData?.id || "";
     values.user_name = userData?.user_metadata.full_name || "Unknown User";
     values.user_avatar = userData?.user_metadata.avatar_url || "";
 
     postComment.mutate(values);
-    console.log(values);
   }
 
   const comments = useQuery({
@@ -107,6 +117,34 @@ const CommentSection = ({ postId }: { postId: string | undefined }) => {
     refetchOnWindowFocus: false,
   });
 
+  const commentTree = ((
+    flatComments: CommentType[]
+  ): (CommentType & { children?: CommentType[] })[] => {
+    const commentMap = new Map<
+      string,
+      CommentType & { children?: CommentType[] }
+    >();
+    const roots: (CommentType & { children?: CommentType[] })[] = [];
+
+    flatComments.forEach((comment) => {
+      commentMap.set(comment.id, { ...comment, children: [] });
+    });
+
+    flatComments.forEach((comment) => {
+      if (comment.parent_comment_id) {
+        const parent = commentMap.get(comment.parent_comment_id);
+        if (parent) {
+          parent.children!.push(commentMap.get(comment.id)!);
+        }
+      } else {
+        roots.push(commentMap.get(comment.id)!);
+      }
+    });
+
+    // console.log(roots);
+    return roots;
+  })(comments.data || []);
+
   return (
     <div className="my-10">
       <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
@@ -115,6 +153,7 @@ const CommentSection = ({ postId }: { postId: string | undefined }) => {
 
       <hr className="mt-4 mb-8" />
 
+      {/* Comment Form */}
       {isUserLoggedin && (
         <div className="my-4 flex gap-2">
           <img
@@ -123,13 +162,13 @@ const CommentSection = ({ postId }: { postId: string | undefined }) => {
             referrerPolicy="no-referrer"
             className="h-8 w-8 rounded-full"
           />
-          <Form {...form}>
+          <Form {...createCommentForm}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={createCommentForm.handleSubmit(onSubmit)}
               className="space-y-6 flex gap-2 w-full"
             >
               <FormField
-                control={form.control}
+                control={createCommentForm.control}
                 name="message"
                 render={({ field }) => (
                   <FormItem className="w-full">
@@ -152,49 +191,20 @@ const CommentSection = ({ postId }: { postId: string | undefined }) => {
         </div>
       )}
 
-      <div>
+      {/* Comments List */}
+      <div className="mt-6 space-y-8">
         {!comments.data ? (
           <p className="my-10 text-center text-gray-500">
             No comments yet. Be the first to comment!
           </p>
         ) : (
-          comments.data.map((comment) => (
-            <div key={comment.id} className="flex my-10 gap-4">
-              <Avatar className="size-8">
-                <AvatarImage
-                  src={comment.user_avatar}
-                  alt={comment.user_name}
-                  referrerPolicy="no-referrer"
-                />
-                <AvatarFallback className="text-base font-medium bg-primary text-primary-foreground">
-                  {comment.user_name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-4">
-                  <div className="flex gap-4">
-                    <p className="text-sm font-semibold">{comment.user_name}</p>
-                    <p className="text-sm text-gray-500">
-                      {new Date(comment.created_at || "").toDateString()}
-                    </p>
-
-                    <p className="text-sm text-gray-500">
-                      <Time time={comment.created_at} noIcon />
-                    </p>
-                  </div>
-                </div>
-                <p className="mt-2 text-base">{comment.message}</p>
-
-                {isUserLoggedin && (
-                  <div className="mt-2">
-                    <Button variant="ghost" className="group">
-                      Reply
-                      <ArrowRightIcon className="transition-transform duration-200 group-hover:translate-x-0.5" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
+          commentTree.map((comment) => (
+            <CommentTile
+              key={comment.id}
+              comment={comment}
+              isUserLoggedin={isUserLoggedin}
+              userData={userData}
+            />
           ))
         )}
       </div>

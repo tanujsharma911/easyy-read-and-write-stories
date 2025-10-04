@@ -2,9 +2,10 @@ import { Link } from "react-router";
 // import { Badge } from "@/components/ui/badge";
 import parse from "html-react-parser";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar } from "lucide-react";
-
-import Time from "./ui/Time";
+import { ClockIcon } from "lucide-react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 type Post = {
   created_at: string;
@@ -49,11 +50,8 @@ const PostCard = (post: Post) => {
           </div>
           <div className="mt-4 flex items-center gap-6 text-muted-foreground text-sm font-medium">
             <div className="flex items-center gap-2">
-              <Time time={post.created_at} />
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />{" "}
-              {new Date(post.created_at).toDateString()}
+              <ClockIcon className="h-4 w-4" />{" "}
+              {dayjs(post.created_at).fromNow()}
             </div>
           </div>
         </CardContent>
@@ -61,7 +59,7 @@ const PostCard = (post: Post) => {
           <img
             src={post.image_url}
             alt={post.title}
-            style={{ maxWidth: "200px" }}
+            style={{ width: "200px" }}
           />
         </div>
       </Card>

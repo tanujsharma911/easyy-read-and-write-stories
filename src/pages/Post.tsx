@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import parse from "html-react-parser";
 import { Calendar } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import type { RootState } from "../app/store";
 import postServices from "@/supabase/post";
@@ -48,7 +50,7 @@ interface UserData {
 
 const Post = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [post, setPost] = useState<Post | null>(null);
+  // const [post, setPost] = useState<Post | null>(null);
   const navigate = useNavigate();
 
   const isUserLoggedin = useSelector<RootState, boolean | null>(
@@ -58,28 +60,41 @@ const Post = () => {
     (state) => state.auth.userData
   );
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        if (!slug) {
-          toast.error("Slug is undefined");
-          return;
-        }
-        if (slug.trim() === "") {
-          toast.error("Slug is empty");
-          return;
-        }
+  // useEffect(() => {
+  //   const fetchPost = async () => {
+  //     try {
+  //       if (!slug) {
+  //         toast.error("Slug is undefined");
+  //         return;
+  //       }
+  //       if (slug.trim() === "") {
+  //         toast.error("Slug is empty");
+  //         return;
+  //       }
 
-        const post = await postServices.getPostBySlug(slug);
-        setPost(post);
-      } catch (error) {
-        toast.error("Failed to fetch post");
-        console.error("Error fetching post:", error);
+  //       const post = await postServices.getPostBySlug(slug);
+  //       setPost(post);
+  //     } catch (error) {
+  //       toast.error("Failed to fetch post");
+  //       console.error("Error fetching post:", error);
+  //     }
+  //   };
+
+  //   fetchPost();
+  // }, [slug]);
+
+  const { data: post, isPending } = useQuery({
+    queryKey: ["post", slug],
+    queryFn: async () => {
+      if (!slug) {
+        throw new Error("Slug is undefined");
       }
-    };
-
-    fetchPost();
-  }, [slug]);
+      if (slug.trim() === "") {
+        throw new Error("Slug is empty");
+      }
+      return postServices.getPostBySlug(slug);
+    },
+  });
 
   const handleDeletePost = async () => {
     try {
@@ -100,23 +115,37 @@ const Post = () => {
   return (
     <div>
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
-        {post?.title}
+        {isPending ? (
+          <div className="animate-pulse w-full rounded-md h-10 bg-gray-200" />
+        ) : (
+          post?.title
+        )}
       </h1>
       <div className="mt-8 mb-12 flex items-center gap-4">
-        <img
-          src={post?.user_avatar}
-          width={32}
-          className="rounded-full"
-          referrerPolicy="no-referrer"
-          alt={post?.user_name}
-        />
-        <p>{post?.user_name}</p>
+        <Avatar>
+          <AvatarImage
+            src={post?.user_avatar}
+            alt={post?.user_name}
+            referrerPolicy="no-referrer"
+          />
+          <AvatarFallback className="text-xs"></AvatarFallback>
+        </Avatar>
+        {isPending ? (
+          <div className="animate-pulse w-40 rounded-md h-6 bg-gray-200" />
+        ) : (
+          <p>{post?.user_name}</p>
+        )}
+
         <p className="text-sm ml-5 flex gap-2 text-muted-foreground">
           <Calendar size={18} />
           {new Date(post?.created_at || "").toDateString()}
         </p>
       </div>
-      <img src={post?.image_url} alt={post?.title} className="w-full" />
+      {isPending ? (
+        <div className="animate-pulse w-full rounded-md h-[350px] bg-gray-200" />
+      ) : (
+        <img src={post?.image_url} alt={post?.title} className="w-full" />
+      )}
       <div id="blog_content">{post?.content && parse(post?.content)}</div>
 
       <div className="mt-8 flex items-center justify-between">
