@@ -1,8 +1,7 @@
 import { Outlet } from "react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Toaster } from "sonner";
-import { useNavigation } from "react-router";
 
 import Header from "./components/Header/Header";
 import { login, logout } from "./store/authSlice";
@@ -11,18 +10,22 @@ import { BreadcrumbNav } from "./components/Header/Breadcrumb";
 
 function App() {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
-  const isNavigating = Boolean(navigation.location);
+  const [loading, setLoading] = useState(true);
+
+  const getUserSession = async () => {
+    const userData = await authService.getSession();
+
+    if (userData) {
+      dispatch(login(userData));
+    } else {
+      dispatch(logout());
+    }
+
+    setLoading(false);
+  };
 
   useEffect(() => {
-    authService.getSession().then((userData) => {
-      if (userData) {
-        const user = userData.user;
-        dispatch(login(user));
-      } else {
-        dispatch(logout());
-      }
-    });
+    getUserSession();
   }, [dispatch]);
 
   return (
@@ -35,10 +38,12 @@ function App() {
         <div className="my-10 w-full">
           <BreadcrumbNav />
         </div>
-        {isNavigating && (
-          <div>
+        {loading && (
+          <div className="flex justify-center items-center h-90">
             <svg
-              fill="hsl(228, 97%, 42%)"
+              className="animate-spin"
+              width={30}
+              fill="#8b5cf6"
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -58,7 +63,7 @@ function App() {
             </svg>
           </div>
         )}
-        <Outlet />
+        {!loading && <Outlet />}
       </div>
 
       <Toaster richColors />

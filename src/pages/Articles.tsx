@@ -19,6 +19,7 @@ type Post = {
 const fetchPosts = async () => {
   try {
     const posts = await postServices.getAllPosts();
+    // console.log("Fetched posts:", posts);
     return posts;
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -40,6 +41,7 @@ const Articles = () => {
     return (
       <div className="flex justify-center items-center h-90">
         <svg
+        className="animate-spin"
           width={30}
           fill="#8b5cf6"
           viewBox="0 0 24 24"

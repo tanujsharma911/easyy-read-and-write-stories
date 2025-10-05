@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ArrowBigDown, ArrowBigUp } from "lucide-react";
+import { ArrowBigDown, ArrowBigUp, Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
-import { Loader2Icon } from "lucide-react";
 import type { RootState } from "../app/store";
 import { useSelector } from "react-redux";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

@@ -41,7 +41,7 @@ const Account = () => {
 
   const handleLogout = async () => {
     const result = await auth.signOut();
-    console.log(result);
+    // console.log(result);
     if (result.status === "success") {
       dispatch(logout());
     }

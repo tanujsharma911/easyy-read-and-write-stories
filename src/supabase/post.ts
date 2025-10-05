@@ -51,11 +51,13 @@ export class PostServices {
 
     async getAllPosts() {
         try {
-            const { data, error } = await supabase
-                .from("articles")
-                .select("*")
-                .order("created_at", { ascending: false });
-    
+            // const { data, error } = await supabase
+            //     .from("articles")
+            //     .select("*")
+            //     .order("created_at", { ascending: false });
+            
+            const { data, error } = await supabase.rpc("get_posts_with_counts");
+
             if (error) {
                 throw new Error(error.message);
             }

@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 // import { Badge } from "@/components/ui/badge";
+import { ArrowBigUp, MessageCircle } from "lucide-react";
 import parse from "html-react-parser";
 import { Card, CardContent } from "@/components/ui/card";
 import { ClockIcon } from "lucide-react";
@@ -17,6 +18,8 @@ type Post = {
   user_avatar?: string;
   image_url?: string;
   slug: string;
+  like_count?: number;
+  comment_count?: number;
 };
 
 const PostCard = (post: Post) => {
@@ -50,8 +53,14 @@ const PostCard = (post: Post) => {
           </div>
           <div className="mt-4 flex items-center gap-6 text-muted-foreground text-sm font-medium">
             <div className="flex items-center gap-2">
-              <ClockIcon className="h-4 w-4" />{" "}
+              <ClockIcon size={18} />
               {dayjs(post.created_at).fromNow()}
+            </div>
+            <div className="flex items-center gap-2">
+              <ArrowBigUp size={18} /> {post.like_count || 0}
+            </div>
+            <div className="flex items-center gap-2">
+              <MessageCircle size={18} /> {post.comment_count || 0}
             </div>
           </div>
         </CardContent>
