@@ -14,6 +14,7 @@ import AuthLayout from "./components/AuthLayout.tsx";
 import Home from "./pages/Home.tsx";
 import LoginPage from "./pages/Login.tsx";
 import CreatePost from "./pages/CreatePost.tsx";
+import EditPost from "./components/EditPost.tsx";
 import Communities from "./pages/Communities.tsx";
 import Account from "./pages/Account.tsx";
 import Post from "./pages/Post.tsx";
@@ -53,6 +54,14 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authenticationRequired={true}>
             <CreatePost />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/edit-post/:slug",
+        element: (
+          <AuthLayout authenticationRequired={true}>
+            <EditPost />
           </AuthLayout>
         ),
       },

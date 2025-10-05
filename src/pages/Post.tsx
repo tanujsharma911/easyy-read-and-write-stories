@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from "react-router";
-// import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import parse from "html-react-parser";
-import { Calendar } from "lucide-react";
+import { Calendar, SquarePen } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 import type { RootState } from "../app/store";
 import postServices from "@/supabase/post";
@@ -153,11 +153,26 @@ const Post = () => {
           <Vote postId={post?.id} />
           {/* <Comment /> */}
         </div>
-        {isUserLoggedin && userData?.id === post?.user_id && (
-          <div>
-            <DeleteBtn onDelete={handleDeletePost} />
-          </div>
-        )}
+
+        <div className="flex items-center gap-2">
+          {isUserLoggedin && userData?.id === post?.user_id && (
+            <div>
+              <DeleteBtn onDelete={handleDeletePost} />
+            </div>
+          )}
+          {isUserLoggedin && userData?.id === post?.user_id && (
+            <div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-none first:rounded-l-md last:rounded-r-md gap-1 px-3.5 font-semibold hover:border-sky-300 hover:bg-sky-600/20 hover:text-sky-600"
+                onClick={() => navigate(`/edit-post/${post?.slug}`)}
+              >
+                <SquarePen />
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       <CommentSection postId={post?.id} />

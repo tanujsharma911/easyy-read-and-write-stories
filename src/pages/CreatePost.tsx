@@ -1,9 +1,9 @@
-import CreatePostComp from "../components/CreatePost";
+import PostForm from "../components/PostForm";
 
 function CreatePost() {
   return (
     <div>
-      <CreatePostComp />
+      <PostForm post={null} />
     </div>
   );
 }

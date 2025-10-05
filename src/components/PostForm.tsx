@@ -21,6 +21,18 @@ import type { RootState } from "../app/store";
 import RTE from "./RTE/RTE";
 
 type Inputs = {
+  id?: string;
+  title: string;
+  content: string;
+  visibility: "public" | "private";
+  user_id?: string;
+  user_name?: string;
+  user_avatar?: string;
+  image_url?: string;
+  slug: string;
+};
+type Post = {
+  id: string;
   title: string;
   content: string;
   visibility: "public" | "private";
@@ -55,22 +67,37 @@ interface UserData {
 }
 
 // Component
-const CreatePost = () => {
+const CreatePost = ({ post }: { post: Post | null }) => {
+  // console.log(post?.title);
   const navigate = useNavigate();
-  const userData = useSelector((state: RootState) => state.auth.userData) as UserData | null;
+  const userData = useSelector(
+    (state: RootState) => state.auth.userData
+  ) as UserData | null;
   const [imageString, setImageString] = useState<string | null>(null);
 
-  const { register, handleSubmit, formState: { errors }, control } = useForm<Inputs>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+  } = useForm<Inputs>({
     defaultValues: {
-      title: "",
-      content: "",
-      visibility: "public",
+      title: post?.title || "",
+      content: post?.content || "",
+      visibility: post?.visibility || "public",
     },
   });
 
   const createPost = useMutation({
-    mutationFn: async ({image, filePath, data} : {image: File, filePath: string, data: Inputs}) => {
-
+    mutationFn: async ({
+      image,
+      filePath,
+      data,
+    }: {
+      image: File;
+      filePath: string;
+      data: Inputs;
+    }) => {
       // Upload image and set public URL
       const publicUrl = await postServices.uploadImage(image, filePath);
       data.image_url = publicUrl;
@@ -90,6 +117,26 @@ const CreatePost = () => {
     },
   });
 
+  const updatePost = useMutation({
+    mutationFn: async ({ data }: { data: Inputs }) => {
+      // Update post
+      if(post?.id === undefined) {
+        throw new Error("Post ID is undefined");
+      }
+      await postServices.updatePost(post?.id, data);
+      return data;
+    },
+
+    onSuccess: (data) => {
+      toast.success("Post updated successfully!");
+      navigate(`/articles/${data.slug}`);
+    },
+
+    onError: () => {
+      toast.error("Failed to update post. Please try again.");
+    },
+  });
+
   const base64ToFile = (base64: string, filename: string): File => {
     const arr = base64.split(",");
     const mime = arr[0].match(/:(.*?);/)![1];
@@ -105,63 +152,72 @@ const CreatePost = () => {
   };
   const slugification = (title: string) => {
     return title
-      .toLowerCase()                       // lowercase everything
-      .normalize("NFD")                     // split accents from letters
-      .replace(/[\u0300-\u036f]/g, "")      // remove accents
-      .replace(/[^a-z0-9\s-]/g, "")         // remove special chars & emojis
-      .trim()                               // trim spaces from start & end
-      .replace(/\s+/g, "-")                 // replace spaces with -
-      .replace(/-+/g, "-");                 // collapse multiple - into one
+      .toLowerCase() // lowercase everything
+      .normalize("NFD") // split accents from letters
+      .replace(/[\u0300-\u036f]/g, "") // remove accents
+      .replace(/[^a-z0-9\s-]/g, "") // remove special chars & emojis
+      .trim() // trim spaces from start & end
+      .replace(/\s+/g, "-") // replace spaces with -
+      .replace(/-+/g, "-"); // collapse multiple - into one
   };
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     // Ensure content is not empty
-    if (data.visibility === undefined) {
-      data.visibility = "public"; // Default to public if not set
+    if (post === null) {
+      if (data.visibility === undefined) {
+        data.visibility = "public"; // Default to public if not set
+      }
+      if (data.content.length < 30) {
+        toast.error("Content is too short", {
+          description: "Content should be at least 30 characters",
+        });
+        return;
+      }
+      if (data.title.length < 5) {
+        toast.error("Title is too short", {
+          description: "Title should be at least 5 characters",
+        });
+        return;
+      }
+      if (data.title.length > 50) {
+        toast.error("Title is too long", {
+          description: "Title should be less than 50 characters",
+        });
+        return;
+      }
+      if (!userData) {
+        toast.error("User not logged in");
+        return;
+      }
     }
-    if (data.content.length < 30) {
-      toast.error("Content is too short", {
-        description: "Content should be at least 30 characters",
-      });
-      return;
-    }
-    if (data.title.length < 5) {
-      toast.error("Title is too short", {
-        description: "Title should be at least 5 characters",
-      });
-      return;
-    }
-    if (data.title.length > 50) {
-      toast.error("Title is too long", {
-        description: "Title should be less than 50 characters",
-      });
-      return;
-    }
-    if (!userData) {
-      toast.error("User not logged in");
-      return;
-    }
-    if (!imageString) {
-      toast.error("Please add a cover image");
-      return;
-    }
-
-    // Add user info to the post data
-    if (!userData) return;
-    data.user_id = userData.id;
-    data.user_name = userData.user_metadata.full_name;
-    data.user_avatar = userData.user_metadata.avatar_url;
-
-    // convert base64(string) image into file
-    const image = base64ToFile(imageString, "cover.jpg");
 
     // Generate slug from title
     data.slug = slugification(data.title);
-    data.slug += `-${(new Date()).toLocaleDateString().replaceAll('/', '-')}`;
+    data.slug += `-${new Date().toLocaleDateString().replaceAll("/", "-")}`;
 
-    // Upload image if exists
-    const filePath = `${data.title}-${data.user_id}-${data.user_name}-${Date.now()}`;
-    createPost.mutate({image, filePath, data});
+    if (post === null) {
+      // Add user info to the post data
+      if (!userData) return;
+      data.user_id = userData.id;
+      data.user_name = userData.user_metadata.full_name;
+      data.user_avatar = userData.user_metadata.avatar_url;
+
+      // convert base64(string) image into file
+      if (!imageString) {
+        toast.error("Please add a cover image");
+        return;
+      }
+      const image = base64ToFile(imageString, "cover.jpg");
+
+      // Upload image if exists
+      const filePath = `${data.title}-${data.user_id}-${
+        data.user_name
+      }-${Date.now()}`;
+      createPost.mutate({ image, filePath, data });
+    } else {
+      // Update post
+      updatePost.mutate({ data });
+    }
   };
 
   return (
@@ -172,13 +228,28 @@ const CreatePost = () => {
       <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-10">
           <p className="mb-2 text-xl">Cover Image</p>
-          <ImageCropComp image={imageString} setImage={setImageString} />
+          {post === null ? (
+            <ImageCropComp image={imageString} setImage={setImageString} />
+          ) : (
+            <img
+              src={post?.image_url ? post.image_url : ""}
+              alt="Cropped"
+              width={1000}
+              height={1000}
+              style={{
+                objectFit: "cover",
+                borderRadius: "0.5rem",
+                border: "1px solid #ccc",
+              }}
+            />
+          )}
         </div>
 
         <div>
           <input
             type="text"
             placeholder="Give Title to your article"
+            defaultValue={post?.title ? post.title : ""}
             maxLength={50}
             {...register("title", {
               required: "Title is required",
@@ -193,7 +264,7 @@ const CreatePost = () => {
         </div>
 
         <div className="my-5">
-          <RTE name="content" control={control} defaultValue={""} />
+          <RTE name="content" control={control} defaultValue={post?.content} />
         </div>
 
         <div className="mb-5">
@@ -222,9 +293,15 @@ const CreatePost = () => {
           )}
         </div>
 
-        <Button type="submit" disabled={createPost.isPending}>
+        <Button
+          type="submit"
+          disabled={createPost.isPending || updatePost.isPending}
+        >
           {createPost.isPending && <Loader2Icon className="animate-spin" />}
-          {createPost.isPending ? "Creating..." : "Create Post"}
+          {post === null &&
+            (createPost.isPending ? "Creating..." : "Create Post")}
+          {post !== null &&
+            (updatePost.isPending ? "Updating..." : "Update Post")}
         </Button>
       </form>
     </div>

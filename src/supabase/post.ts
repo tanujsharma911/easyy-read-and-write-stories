@@ -1,3 +1,4 @@
+
 import supabase from "./supabase-client";
 
 type Post = {
@@ -85,6 +86,26 @@ export class PostServices {
         } catch (error) {
             console.error("Error fetching post:", error);
             throw new Error("Failed to fetch post");
+        }
+    }
+
+    async updatePost(postId: string , data: Post) {
+        console.log("Updating post with ID:", postId, "and data:", data);
+        try {
+            const { error } = await supabase
+            .from('articles')
+            .update(data)
+            .eq('id', postId)
+            .select()
+    
+            if (error) {
+                throw new Error(error.message);
+            }
+    
+            return true;
+        } catch (error) {
+            console.error("update post :: ", error);
+            throw new Error("Failed to update post");
         }
     }
 
