@@ -120,7 +120,7 @@ const CreatePost = ({ post }: { post: Post | null }) => {
   const updatePost = useMutation({
     mutationFn: async ({ data }: { data: Inputs }) => {
       // Update post
-      if(post?.id === undefined) {
+      if (post?.id === undefined) {
         throw new Error("Post ID is undefined");
       }
       await postServices.updatePost(post?.id, data);
@@ -210,7 +210,7 @@ const CreatePost = ({ post }: { post: Post | null }) => {
       const image = base64ToFile(imageString, "cover.jpg");
 
       // Upload image if exists
-      const filePath = `${data.title}-${data.user_id}-${
+      const filePath = `${data.slug}-${data.user_id}-${
         data.user_name
       }-${Date.now()}`;
       createPost.mutate({ image, filePath, data });
