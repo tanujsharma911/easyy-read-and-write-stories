@@ -74,15 +74,16 @@ const Articles = () => {
       <h1 className="scroll-m-20 mb-10 text-center text-4xl font-extrabold tracking-tight text-balance">
         Articles
       </h1>
+
       <div>
         {posts.map((post, index) => {
           const isLast = index === posts.length - 1;
 
           return isLast ? (
-            <PostCard {...post} key={post.slug} />
+            <PostCard post={post} key={post.slug} />
           ) : (
             <Fragment key={post.slug}>
-              <PostCard {...post} />
+              <PostCard post={post} key={''} />
               <hr className="my-8" />
             </Fragment>
           );

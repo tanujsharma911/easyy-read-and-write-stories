@@ -23,18 +23,8 @@ export default function Header() {
 
   const links = [
     {
-      name: "Articles",
-      to: "/articles",
-      active: true,
-    },
-    {
       name: "Write",
-      to: "/create-post",
-      active: userLoggedIn,
-    },
-    {
-      name: "Communities",
-      to: "/communities",
+      to: "/create-article",
       active: userLoggedIn,
     },
     {

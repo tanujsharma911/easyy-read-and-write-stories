@@ -52,12 +52,27 @@ export class PostServices {
 
     async getAllPosts() {
         try {
-            // const { data, error } = await supabase
-            //     .from("articles")
-            //     .select("*")
-            //     .order("created_at", { ascending: false });
             
             const { data, error } = await supabase.rpc("get_posts_with_counts");
+
+            if (error) {
+                throw new Error(error.message);
+            }
+    
+            return data;
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+            throw new Error("Failed to fetch posts");
+        }
+    }
+
+    async getAllUserPosts(userId: string) {
+        try {
+            const { data, error } = await supabase
+                .from("articles")
+                .select("*")
+                .eq("user_id", userId)
+                .order("created_at", { ascending: false });
 
             if (error) {
                 throw new Error(error.message);

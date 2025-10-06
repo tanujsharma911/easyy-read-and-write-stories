@@ -15,10 +15,8 @@ import Home from "./pages/Home.tsx";
 import LoginPage from "./pages/Login.tsx";
 import CreatePost from "./pages/CreatePost.tsx";
 import EditPost from "./components/EditPost.tsx";
-import Communities from "./pages/Communities.tsx";
 import Account from "./pages/Account.tsx";
 import Post from "./pages/Post.tsx";
-import Articles from "./pages/Articles.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -50,7 +48,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/create-post",
+        path: "/create-article",
         element: (
           <AuthLayout authenticationRequired={true}>
             <CreatePost />
@@ -58,26 +56,10 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/edit-post/:slug",
+        path: "/edit-article/:slug",
         element: (
           <AuthLayout authenticationRequired={true}>
             <EditPost />
-          </AuthLayout>
-        ),
-      },
-      {
-        path: "/communities",
-        element: (
-          <AuthLayout authenticationRequired={true}>
-            <Communities />
-          </AuthLayout>
-        ),
-      },
-      {
-        path: "/articles",
-        element: (
-          <AuthLayout authenticationRequired={false}>
-            <Articles />
           </AuthLayout>
         ),
       },
@@ -92,7 +74,7 @@ const router = createBrowserRouter([
       {
         path: "*",
         element: <NotFound />,
-      }
+      },
     ],
   },
 ]);

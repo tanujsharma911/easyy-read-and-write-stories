@@ -22,20 +22,26 @@ type Post = {
   comment_count?: number;
 };
 
-const PostCard = (post: Post) => {
+const PostCard = ({
+  post,
+  hideInteractions = false,
+}: {
+  post: Post;
+  hideInteractions?: boolean;
+}) => {
   return (
-    <Link to={`/articles/${post.slug}`} key={post.slug}>
+    <Link key={post?.slug} to={`/articles/${post?.slug}`}>
       <Card className="bg-transparent flex flex-col sm:flex-row sm:items-center justify-between shadow-none overflow-hidden rounded-md border-none py-0">
         <CardContent className="p-0 flex flex-col">
           <div className="flex items-center gap-2">
             <img
-              src={post.user_avatar}
-              alt={post.user_name}
-              width={22}
+              src={post?.user_avatar}
+              alt={post?.user_name}
+              width={23}
               referrerPolicy="no-referrer"
               className="rounded-full"
             />
-            <p className="text-[14px] text-gray-500">{post.user_name}</p>
+            <p className="text-[14px] text-gray-500">{post?.user_name}</p>
           </div>
           <div className="flex items-center gap-6">
             {/* <Badge className="bg-primary/5 text-primary hover:bg-primary/5 shadow-none">
@@ -43,31 +49,35 @@ const PostCard = (post: Post) => {
             </Badge> */}
           </div>
           <h3 className="mt-4 text-2xl font-semibold tracking-tight">
-            {post.title}
+            {post?.title}
           </h3>
           <div className="mt-2 flex text-muted-foreground line-clamp-3 text-ellipsis">
             {parse(
-              post.content.substring(0, 100) +
-                (post.content.length > 100 ? "..." : "")
+              post?.content.substring(0, 100) +
+                (post?.content.length > 100 ? "..." : "")
             )}
           </div>
           <div className="mt-4 flex items-center gap-6 text-muted-foreground text-sm font-medium">
             <div className="flex items-center gap-2">
               <ClockIcon size={18} />
-              {dayjs(post.created_at).fromNow()}
+              {dayjs(post?.created_at).fromNow()}
             </div>
-            <div className="flex items-center gap-2">
-              <ArrowBigUp size={18} /> {post.like_count || 0}
-            </div>
-            <div className="flex items-center gap-2">
-              <MessageCircle size={18} /> {post.comment_count || 0}
-            </div>
+            {!hideInteractions && (
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <ArrowBigUp size={18} /> {post?.like_count || 0}
+                </div>
+                <div className="flex items-center gap-2">
+                  <MessageCircle size={18} /> {post?.comment_count || 0}
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
         <div>
           <img
-            src={post.image_url}
-            alt={post.title}
+            src={post?.image_url}
+            alt={post?.title}
             style={{ width: "200px" }}
           />
         </div>

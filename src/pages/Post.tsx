@@ -60,29 +60,6 @@ const Post = () => {
     (state) => state.auth.userData
   );
 
-  // useEffect(() => {
-  //   const fetchPost = async () => {
-  //     try {
-  //       if (!slug) {
-  //         toast.error("Slug is undefined");
-  //         return;
-  //       }
-  //       if (slug.trim() === "") {
-  //         toast.error("Slug is empty");
-  //         return;
-  //       }
-
-  //       const post = await postServices.getPostBySlug(slug);
-  //       setPost(post);
-  //     } catch (error) {
-  //       toast.error("Failed to fetch post");
-  //       console.error("Error fetching post:", error);
-  //     }
-  //   };
-
-  //   fetchPost();
-  // }, [slug]);
-
   const { data: post, isPending } = useQuery({
     queryKey: ["post", slug],
     queryFn: async () => {
@@ -166,7 +143,7 @@ const Post = () => {
                 variant="outline"
                 size="icon"
                 className="rounded-none first:rounded-l-md last:rounded-r-md gap-1 px-3.5 font-semibold hover:border-sky-300 hover:bg-sky-600/20 hover:text-sky-600"
-                onClick={() => navigate(`/edit-post/${post?.slug}`)}
+                onClick={() => navigate(`/edit-article/${post?.slug}`)}
               >
                 <SquarePen />
               </Button>
