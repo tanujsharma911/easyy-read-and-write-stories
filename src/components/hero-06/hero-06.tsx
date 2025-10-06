@@ -15,7 +15,7 @@ const Hero06 = () => {
           className="rounded-full py-1 border-border"
           asChild
         >
-          <Link href="#">
+          <Link to="#">
             Just released v1.0.0 <ArrowUpRight className="ml-1 size-4" />
           </Link>
         </Badge>
