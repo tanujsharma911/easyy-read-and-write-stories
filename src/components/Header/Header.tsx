@@ -105,7 +105,6 @@ export default function Header() {
           </Sheet>
         </div>
       </nav>
-      
     </div>
   );
 }

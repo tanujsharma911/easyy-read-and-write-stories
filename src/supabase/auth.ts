@@ -22,8 +22,19 @@ import { toast } from "sonner"
 export class AuthService {
     async signInWithGoogle() {
         try {
+
+            const redirectTo =
+                process.env.NODE_ENV === "production"
+                    ? "https://easyy.vercel.app"
+                    : "http://localhost:5173";
+
+            alert("Redirecting to:" + redirectTo);
+
             const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google'
+                provider: 'google',
+                options: { 
+                    redirectTo: redirectTo
+                 }
             });
               
     

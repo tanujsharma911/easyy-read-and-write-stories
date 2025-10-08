@@ -11,12 +11,12 @@ export function capitalize(str: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type GroupBy<T> = Record<string, T[]>;
+type GroupBy<T, K extends keyof T> = Record<string, T[]>;
 
 export function groupBy<T, K extends keyof T>(
   array: T[],
   key: K
-): GroupBy<T> {
+): GroupBy<T, K> {
   return array.reduce((acc, item) => {
     const keyValue = String(item[key]);
     if (!acc[keyValue]) {
@@ -24,7 +24,7 @@ export function groupBy<T, K extends keyof T>(
     }
     acc[keyValue].push(item);
     return acc;
-  }, {} as GroupBy<T>);
+  }, {} as GroupBy<T, K>);
 }
 
 export function absoluteUrl(path: string) {

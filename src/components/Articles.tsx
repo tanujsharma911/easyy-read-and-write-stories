@@ -1,8 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Fragment } from "react/jsx-runtime";
+import { useQueryClient } from "@tanstack/react-query";
 
 import postServices from "@/supabase/post";
 import PostCard from "@/components/PostCard";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { useState } from "react";
 
 type Post = {
   created_at: string;
@@ -16,10 +20,11 @@ type Post = {
   slug: string;
 };
 
-const fetchPosts = async () => {
+const fetchPosts = async (searchTerms: string) => {
   try {
-    const posts = await postServices.getAllPosts();
-    // console.log("Fetched posts:", posts);
+    const posts = await postServices.getAllPosts(searchTerms);
+    return posts;
+
     return posts;
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -28,20 +33,23 @@ const fetchPosts = async () => {
 };
 
 const Articles = () => {
+  const queryClient = useQueryClient();
+  const [searchTerms, setSearchTerms] = useState<string>("");
+
   const {
     data: posts = [],
     isLoading,
     isError,
   } = useQuery<Post[]>({
     queryKey: ["articles"],
-    queryFn: fetchPosts,
+    queryFn: () => fetchPosts(searchTerms),
   });
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-90">
         <svg
-        className="animate-spin"
+          className="animate-spin"
           width={30}
           fill="#8b5cf6"
           viewBox="0 0 24 24"
@@ -71,23 +79,41 @@ const Articles = () => {
 
   return (
     <div>
-      <h1 className="scroll-m-20 mb-10 text-center text-4xl font-extrabold tracking-tight text-balance">
-        Articles
-      </h1>
-
+      <div className="flex w-full mb-10 justify-between items-center gap-2">
+        <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">
+          Articles
+        </h1>
+        {/* <div className="flex w-full max-w-sm items-center gap-2">
+          <Input
+            type="text"
+            placeholder="Search"
+            value={searchTerms}
+            onChange={(e) => setSearchTerms(e.target.value)}
+          />
+          <Button
+            onClick={() =>
+              queryClient.invalidateQueries({ queryKey: ["articles"] })
+            }
+            variant="outline"
+          >
+            Search
+          </Button>
+        </div> */}
+      </div>
       <div>
-        {posts.map((post, index) => {
-          const isLast = index === posts.length - 1;
+        {posts.length > 0 &&
+          posts.map((post, index) => {
+            const isLast = index === posts.length - 1;
 
-          return isLast ? (
-            <PostCard post={post} key={post.slug} />
-          ) : (
-            <Fragment key={post.slug}>
-              <PostCard post={post} key={''} />
-              <hr className="my-8" />
-            </Fragment>
-          );
-        })}
+            return isLast ? (
+              <PostCard post={post} key={post.slug} />
+            ) : (
+              <Fragment key={post.slug}>
+                <PostCard post={post} key={""} />
+                <hr className="my-8" />
+              </Fragment>
+            );
+          })}
       </div>
     </div>
   );
