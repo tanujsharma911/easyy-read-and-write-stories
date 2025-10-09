@@ -53,13 +53,15 @@ export class PostServices {
     async getAllPosts(searchTerms?: string) {
         try {
             if (searchTerms) {
-                console.log("Searching posts with terms:", searchTerms);
                 const posts = await supabase
-                    .from("posts")
+                    .from("articles")
                     .select("*")
-                    .textSearch("content", `'${searchTerms}'`);
+                    .textSearch("content", `${searchTerms}`);
 
-                return posts;
+                if (posts.error) {
+                    throw new Error(posts.error.message);
+                }
+                return posts.data;
             }
 
             const { data, error } = await supabase.rpc("get_posts_with_counts");

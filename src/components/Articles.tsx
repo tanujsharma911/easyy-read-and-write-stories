@@ -83,7 +83,7 @@ const Articles = () => {
         <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">
           Articles
         </h1>
-        {/* <div className="flex w-full max-w-sm items-center gap-2">
+        <div className="flex w-full max-w-sm items-center gap-2">
           <Input
             type="text"
             placeholder="Search"
@@ -98,7 +98,7 @@ const Articles = () => {
           >
             Search
           </Button>
-        </div> */}
+        </div>
       </div>
       <div>
         {posts.length > 0 &&
@@ -114,6 +114,11 @@ const Articles = () => {
               </Fragment>
             );
           })}
+        {posts.length === 0 && (
+          <div className="flex flex-col justify-center items-center mt-20">
+            <h2 className="text-xl font-base mb-4 text-gray-600">No posts found</h2>
+          </div>
+        )}
       </div>
     </div>
   );
