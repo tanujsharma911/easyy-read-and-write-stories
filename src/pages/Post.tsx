@@ -123,7 +123,9 @@ const Post = () => {
       ) : (
         <img src={post?.image_url} alt={post?.title} className="w-full" />
       )}
-      <div id="blog_content">{post?.content && parse(post?.content)}</div>
+      <div id="blog_content" className="dark:text-gray-100">
+        {post?.content && parse(post?.content)}
+      </div>
 
       <div className="mt-8 flex items-center justify-between">
         <div className="flex items-center gap-4">

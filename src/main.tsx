@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+// import type { ThemeProviderProps } from "next-themes/dist/types";
 import "./index.css";
 
 // Local imports
@@ -81,10 +83,12 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <RouterProvider router={router} />
-      </Provider>
-    </QueryClientProvider>
+    <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <RouterProvider router={router} />
+        </Provider>
+      </QueryClientProvider>
+    </NextThemesProvider>
   </StrictMode>
 );

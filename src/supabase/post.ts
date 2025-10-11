@@ -40,7 +40,7 @@ export class PostServices {
     
             const { data: publicURL } = supabase.storage
                 .from("post-images")
-                    .getPublicUrl(filePath);
+                .getPublicUrl(filePath);
     
             return publicURL.publicUrl;
             
@@ -56,6 +56,7 @@ export class PostServices {
                 const posts = await supabase
                     .from("articles")
                     .select("*")
+                    .eq("visibility", "public")
                     .textSearch("content", `${searchTerms}`);
 
                 if (posts.error) {
@@ -64,7 +65,7 @@ export class PostServices {
                 return posts.data;
             }
 
-            const { data, error } = await supabase.rpc("get_posts_with_counts");
+            const { data, error } = await supabase.rpc("get_posts_with_counts").eq("visibility", "public").order("created_at", { ascending: false });
 
             if (error) {
                 throw new Error(error.message);

@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 
 import type { RootState } from "../../app/store";
+import ThemeBtn from "./ThemeBtn";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export default function Header() {
 
   return (
     <div>
-      <nav className="w-full flex bg-transparent items-center justify-between py-4 px-5 sm:px-18 border-b border-b-slate-200">
+      <nav className="w-full flex bg-transparent items-center justify-between py-4 px-5 sm:px-18 border-b border-b-slate-200 dark:border-b-slate-600">
         <div className="flex items-center gap-2">
           <h3 className="scroll-m-20 text-2xl font-sans font-semibold tracking-tight">
             Easyy!
@@ -104,6 +105,8 @@ export default function Header() {
             </SheetContent>
           </Sheet>
         </div>
+
+        <ThemeBtn />
       </nav>
     </div>
   );

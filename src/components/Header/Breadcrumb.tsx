@@ -21,7 +21,7 @@ export function BreadcrumbNav() {
 
         {segments.length > 0 && <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to="/" className="text-gray-600">Home</Link>
+            <Link to="/" className="text-gray-600 dark:text-gray-300">Home</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>}
 
@@ -34,12 +34,12 @@ export function BreadcrumbNav() {
               <BreadcrumbSeparator className="text-gray-400" />
               <BreadcrumbItem>
                 {isLast ? (
-                  <BreadcrumbPage className="text-gray-600 capitalize">
+                  <BreadcrumbPage className="text-gray-600 capitalize dark:text-gray-300">
                     {segment.replace(/[-0-9]/g, " ")}
                   </BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
-                    <Link to={to} className="text-gray-600 capitalize">
+                    <Link to={to} className="text-gray-600 capitalize dark:text-gray-300">
                       {segment.replace(/[-0-9]/g, " ")}
                     </Link>
                   </BreadcrumbLink>

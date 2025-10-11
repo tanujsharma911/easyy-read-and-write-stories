@@ -30,7 +30,7 @@ function App() {
 
   return (
     <div>
-      <div className="sticky top-0 w-full z-50  bg-white/70 backdrop-blur-lg">
+      <div className="sticky top-0 w-full z-50  bg-white/70 dark:bg-black/10 backdrop-blur-lg">
         <Header />
       </div>
 
