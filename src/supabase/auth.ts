@@ -28,8 +28,6 @@ export class AuthService {
                     ? "https://easyy.vercel.app"
                     : "http://localhost:5173";
 
-            alert("Redirecting to:" + redirectTo);
-
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: { 

@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { Toaster } from "sonner";
 
 import Header from "./components/Header/Header";
+import Footer from "./components/Footer";
 import { login, logout } from "./store/authSlice";
 import authService from "./supabase/auth";
 import { BreadcrumbNav } from "./components/Header/Breadcrumb";
@@ -65,6 +66,7 @@ function App() {
         )}
         {!loading && <Outlet />}
       </div>
+      <Footer />
 
       <Toaster richColors />
     </div>
