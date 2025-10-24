@@ -75,20 +75,28 @@ export default function Header() {
           {/* Hamburger Button */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Open menu"
+                aria-haspopup="menu"
+                aria-controls="mobile-menu"
+                aria-expanded="false"
+              >
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
 
             {/* Sidebar / Drawer */}
             <SheetContent side="left" className="p-4">
-              <nav className="flex flex-col gap-4">
+              <nav className="flex flex-col gap-4" role="menu">
                 {links.map((link) =>
                   !link.active ? null : (
                     <Link
                       key={link.name}
                       to={link.to}
                       onClick={() => setOpen(false)}
+                      role="menuitem"
                     >
                       {link.name}
                     </Link>
@@ -98,7 +106,9 @@ export default function Header() {
               {!userLoggedIn && (
                 <NavigationMenuList className="ml-4">
                   <div>
-                    <Button onClick={() => navigate("/login")}>Login</Button>
+                    <Button onClick={() => navigate("/login")} role="menuitem">
+                      Login
+                    </Button>
                   </div>
                 </NavigationMenuList>
               )}

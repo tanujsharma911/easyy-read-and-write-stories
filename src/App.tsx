@@ -31,11 +31,11 @@ function App() {
 
   return (
     <div>
-      <div className="sticky top-0 w-full z-50  bg-white/70 dark:bg-black/10 backdrop-blur-lg">
+      <header className="sticky top-0 w-full z-50  bg-white/70 dark:bg-black/10 backdrop-blur-lg">
         <Header />
-      </div>
+      </header>
 
-      <div className="mx-auto mb-20 px-5 md:px-20 lg:max-w-4xl w-full mt-10">
+      <main className="mx-auto mb-20 px-5 md:px-20 lg:max-w-4xl w-full mt-10">
         <div className="my-10 w-full">
           <BreadcrumbNav />
         </div>
@@ -65,7 +65,7 @@ function App() {
           </div>
         )}
         {!loading && <Outlet />}
-      </div>
+      </main>
       <Footer />
 
       <Toaster richColors />

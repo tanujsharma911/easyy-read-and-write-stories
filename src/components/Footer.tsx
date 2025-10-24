@@ -24,10 +24,9 @@ const Footer = () => {
       <footer className="border-t">
         <div className="max-w-(--breakpoint-xl) mx-auto">
           <div className="py-12 flex flex-col justify-start items-center">
-
-            <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
+            <p className="scroll-m-20 text-xl font-semibold tracking-tight">
               Easyy - Read & Write Stories
-            </h4>
+            </p>
 
             <ul className="mt-6 flex items-center gap-4 flex-wrap">
               {footerLinks.map(({ title, to }) => (
@@ -47,12 +46,17 @@ const Footer = () => {
             {/* Copyright */}
 
             <div className="flex items-center ml-auto gap-5 text-muted-foreground">
-              <Link to="https://github.com/tanujsharma911" target="_blank">
+              <Link
+                to="https://github.com/tanujsharma911"
+                target="_blank"
+                aria-label="Visit Tanuj Sharma's GitHub profile"
+              >
                 <FaGithub />
               </Link>
               <Link
                 to="https://www.linkedin.com/in/tanujsharma911/"
                 target="_blank"
+                aria-label="Visit Tanuj Sharma's LinkedIn profile"
               >
                 <FaLinkedinIn />
               </Link>

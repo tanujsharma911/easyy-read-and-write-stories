@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset 
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- 🏠 Home Page -->
+  <url>
+    <loc>https://www.easyy.vercel.app/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- 👤 User Account -->
+  <url>
+    <loc>https://www.easyy.vercel.app/account</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- 📝 Blog creation -->
+  <url>
+    <loc>https://www.easyy.vercel.app/create-article</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- 🧠 Example of dynamic blog pages (auto-generated via backend) -->
+  <url>
+    <loc>https://www.easyy.vercel.app/articles/hey-did-you-hear-about-the-aws-outage-24-10-2025</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.easyy.vercel.app/articles/hld-and-lld-in-system-design-12-10-2025</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
